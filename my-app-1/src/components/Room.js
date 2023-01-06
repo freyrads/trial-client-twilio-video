@@ -45,8 +45,8 @@ export default function Room({ roomName, token, handleLogout }) {
       console.log("DISCONNECTING ROOM");
       await room.disconnect()
       console.log("DISCONNECTED ROOM");
-      handleLogout();
     }
+    handleLogout();
   }
 
   return (
