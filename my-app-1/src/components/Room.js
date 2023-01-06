@@ -7,6 +7,21 @@ export default function Room({ roomName, token, handleLogout }) {
   const [room, setRoom] = useState(null)
   const [participants, setParticipants] = useState([])
 
+  const logout = async (debugFrom) => {
+    if (room) {
+      room.localParticipant.tracks.forEach((trackPublication) => {
+        trackPublication.track.stop()
+      })
+
+      console.log("DISCONNECTING ROOM");
+      await room.disconnect()
+      console.log("DISCONNECTED ROOM");
+      setRoom(null);
+      console.log("LOGGING OUT:", debugFrom);
+      handleLogout();
+    }
+  }
+
   useEffect(() => {
     const participantConnected = (participant) => {
       console.log("CONNECTED", participant.identity);
@@ -33,21 +48,9 @@ export default function Room({ roomName, token, handleLogout }) {
         console.log(roomParticipants);
         setParticipants(roomParticipants);
       })
-
   }, [roomName, token])
 
-  const logout = async () => {
-    if (room && room.localParticipant.state === 'connected') {
-      room.localParticipant.tracks.forEach((trackPublication) => {
-        trackPublication.track.stop()
-      })
-
-      console.log("DISCONNECTING ROOM");
-      await room.disconnect()
-      console.log("DISCONNECTED ROOM");
-    }
-    handleLogout();
-  }
+  useEffect(() => () => logout("UNMOUNT LOGOUT"), []);
 
   return (
     <div className='room'>
