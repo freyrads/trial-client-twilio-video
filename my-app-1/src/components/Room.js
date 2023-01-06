@@ -7,34 +7,23 @@ export default function Room({ roomName, token, handleLogout }) {
   const [room, setRoom] = useState(null)
   const [participants, setParticipants] = useState([])
 
-  const logout = async (debugFrom) => {
-    if (room) {
-      room.localParticipant.tracks.forEach((trackPublication) => {
-        trackPublication.track.stop()
-      })
-
-      console.log("DISCONNECTING ROOM");
-      await room.disconnect()
-      console.log("DISCONNECTED ROOM");
-      setRoom(null);
-      console.log("LOGGING OUT:", debugFrom);
-      handleLogout();
-    }
+  const logout = (debugFrom) => {
+    handleLogout(room, debugFrom);
   }
 
+  const participantConnected = (participant) => {
+    console.log("CONNECTED", participant.identity);
+    setParticipants([...participants, participant]);
+  };
+
+  const participantDisconnected = (participant) => {
+    console.log("DISCONNECTED", participant.identity);
+    setParticipants(
+      participants.filter(p => p.state !== "disconnected")
+    );
+  };
+
   useEffect(() => {
-    const participantConnected = (participant) => {
-      console.log("CONNECTED", participant.identity);
-      setParticipants([...participants, participant]);
-    };
-
-    const participantDisconnected = (participant) => {
-      console.log("DISCONNECTED", participant.identity);
-      setParticipants(
-        participants.filter(p => p.state !== "disconnected")
-      );
-    };
-
     Video.connect(token, {
       name: roomName
     })
